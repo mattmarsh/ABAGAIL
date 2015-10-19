@@ -70,6 +70,59 @@ public class NNoptimization {
             return null;
         }
     }
+    
+    public static String runSA(int it, double T, double cooling)
+    {
+        networks[0] = factory.createClassificationNetwork(
+        		new int[] {inputLayer, hiddenLayer, outputLayer},
+                new LogisticSigmoid());
+        nnop[0] = new NeuralNetworkOptimizationProblem(set, networks[0], measure);    	
+		OptimizationAlgorithm oa = new SimulatedAnnealing(T, cooling, nnop[0]);
+    	String result = runOnce(it,oa,"SA");
+    	return result + "," + df.format(T) + "," + df.format(cooling) + "\n";
+    }
+    
+    public static String runOnce(int it, OptimizationAlgorithm oa, String oaName )
+    {
+        for(int j = 0; j < it; j++) {
+            oa.train();
+        }
+        
+        Instance optimalInstance = oa.getOptimal();
+        networks[0].setWeights(optimalInstance.getData());
+
+        double correct = 0, incorrect = 0;
+        double predicted, actual;
+        for(int j = 0; j < trainInstances.length; j++) {
+            networks[0].setInputValues(trainInstances[j].getData());
+            networks[0].run();
+
+            predicted = Double.parseDouble(trainInstances[j].getLabel().toString());
+            actual = Double.parseDouble(networks[0].getOutputValues().toString());
+
+            double trash = Math.abs(predicted - actual) < 0.5 ? correct++ : incorrect++;
+
+        }
+
+        results +=  oaName + "," + it + "," + df.format(incorrect / (correct + incorrect)) + ","; 
+
+        correct = 0;
+        incorrect = 0;
+        for(int j = 0; j < testInstances.length; j++) {
+            networks[0].setInputValues(testInstances[j].getData());
+            networks[0].run();
+
+            predicted = Double.parseDouble(testInstances[j].getLabel().toString());
+            actual = Double.parseDouble(networks[0].getOutputValues().toString());
+
+            double trash = Math.abs(predicted - actual) < 0.5 ? correct++ : incorrect++;
+
+        }
+
+        results += df.format(incorrect / (correct + incorrect));
+        
+        return results;
+    }
 
     public static void main(String[] args) {
 
@@ -83,7 +136,7 @@ public class NNoptimization {
         }
 
         oa[0] = new RandomizedHillClimbing(nnop[0]);
-        oa[1] = new SimulatedAnnealing(1E11, .95, nnop[1]);
+        oa[1] = new SimulatedAnnealing(1E5, .8, nnop[1]); //old vals: 1e11, .95
         oa[2] = new StandardGeneticAlgorithm(200, 100, 10, nnop[2]);
         
         //PrintWriter writer;
