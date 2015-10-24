@@ -13,15 +13,15 @@ p <- p + geom_line() + geom_smooth(size=1)
 p <- p + xlab("Iterations") + ylab("Testing Error Rate") + ggtitle("ANN Weight Optimization: Test Set Error")
 ggsave("nn_test_error.png",plot=p,scale = .6)
 
-#ANN 
+#ANN train time
 p <- ggplot(data = nn_opt, aes(x=iterations, y=training.time, col=algorithm))
-p <- p + geom_line() + geom_smooth(size=1)
+p <- p + geom_line() + geom_smooth(size=1) + scale_y_log10()
 p <- p + xlab("Iterations") + ylab("Training Time (s)") + ggtitle("ANN Weight Optimization: Training Time")
 ggsave("nn_train_time.png",plot=p,scale = .6)
 
-#ANN 
+#ANN test time
 p <- ggplot(data = nn_opt, aes(x=iterations, y=testing.time, col=algorithm))
-p <- p + geom_line() + geom_smooth(size=1)
+p <- p + geom_line() + geom_smooth(size=1) 
 p <- p + xlab("Iterations") + ylab("Testing Time (s)") + ggtitle("ANN Weight Optimization: Testing Time")
 ggsave("nn_test_time.png",plot=p,scale = .6)
 
@@ -30,3 +30,25 @@ ggsave("nn_test_time.png",plot=p,scale = .6)
 # p <- ggplot(data=nn_opt_sa, aes(x=cooling.rate, y=temperature)) 
 # p <- p + geom_point(aes(color=testing.error)) + scale_y_log10() + scale_color_gradient(low="blue)
 # p
+
+# K coloring
+
+kcolor <- read.csv("MaxKColoringTest.csv", stringsAsFactors = FALSE)
+p1 <- ggplot(data = subset(kcolor, N==100), aes(x=evaluations, y=optimal.value, col=algorithm))
+p1 <- p1 + geom_line() + geom_smooth(size=1) 
+p1 <- p1 + xlab("Function Evaluations") + ylab("Maximum value") + ggtitle("Max K Coloring: Max Value (N=100)")
+#ggsave("maxkcolor_opt_100.png",plot=p,scale = .6)
+
+p2 <- ggplot(data = subset(kcolor, N==500), aes(x=evaluations, y=optimal.value, col=algorithm))
+p2 <- p2 + geom_line() + geom_smooth(size=1) 
+p2 <- p2 + xlab("Function Evaluations") + ylab("Maximum value") + ggtitle("Max K Coloring: Max Value (N=500)")
+#ggsave("maxkcolor_opt_500.png",plot=p,scale = .6)
+
+p3 <- ggplot(data = subset(kcolor, N==100), aes(x=time, y=optimal.value, col=algorithm))
+p3 <- p3 + geom_line() + geom_smooth(size=1) 
+p3 <- p3 + xlab("Function Evaluations") + ylab("Execution Time") + ggtitle("Max K Coloring: Execution Time (N=100)")
+
+p4 <- ggplot(data = subset(kcolor, N==500), aes(x=time, y=optimal.value, col=algorithm))
+p4 <- p4 + geom_line() + geom_smooth(size=1) 
+p4 <- p4 + xlab("Function Evaluations") + ylab("Execution Time") + ggtitle("Max K Coloring: Execution Time (N=500)")
+multiplot(p1,p2,p3,p4, cols = 2)

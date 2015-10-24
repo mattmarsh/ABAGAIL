@@ -82,6 +82,17 @@ public class NNoptimization {
     	return result + "," + df.format(T) + "," + df.format(cooling) + "\n";
     }
     
+    public static String runGA(int it, int pop, int mate, int mutate)
+    {
+        networks[0] = factory.createClassificationNetwork(
+        		new int[] {inputLayer, hiddenLayer, outputLayer},
+                new LogisticSigmoid());
+        nnop[0] = new NeuralNetworkOptimizationProblem(set, networks[0], measure);    	
+        OptimizationAlgorithm oa = new StandardGeneticAlgorithm(pop, mate, mutate, nnop[0]);
+    	String result = runOnce(it,oa,"GA");
+    	return result + "," + df.format(pop) + "," + df.format(mate) + "," + df.format(mutate) + "\n";
+    }    
+    
     public static String runOnce(int it, OptimizationAlgorithm oa, String oaName )
     {
         for(int j = 0; j < it; j++) {
