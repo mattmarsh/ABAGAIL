@@ -32,14 +32,19 @@ import shared.FixedIterationTrainer;
  */
 public class FourPeaksTest {
     /** The n value */
-    private static final int N = 200;
+    //private static final int N = 150;
     /** The t value */
-    private static final int T = N / 5;
+    //private static final int T = N / 5;
     
-    private static final int optimum = N*2-T-1;
+    private static final int PRINT_INTERVAL = 50;
+    private static final int MAX_IT = 200000;
+    private static final int MIMIC_SAMPLES = 200;
+    private static final int GA_POP = 200;    
     
     public static void main(String[] args) {
-        int[] ranges = new int[N];
+    	int N = args.length > 0 ? Integer.parseInt(args[0]): 150;
+    	int T = args.length > 1 ? N/Integer.parseInt(args[1]): N / 5;
+    	int[] ranges = new int[N];
         Arrays.fill(ranges, 2);
         EvaluationFunction ef = new FourPeaksEvaluationFunction(T);
         Distribution odd = new DiscreteUniformDistribution(ranges);
@@ -52,41 +57,55 @@ public class FourPeaksTest {
         ProbabilisticOptimizationProblem pop = new GenericProbabilisticOptimizationProblem(ef, odd, df);
         
         long starttime = System.currentTimeMillis();
-        RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);
-        int iterations = 0;
-        while(ef.value(rhc.getOptimal()) != optimum)
+        RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);      
+        for(int i=0; i<MAX_IT; i++)
         {
         	rhc.train();
-        	iterations++;
+        	if(i%PRINT_INTERVAL==0)
+        	{
+	            System.out.println("RHC," + i + "," + N + "," + T
+		 		           + "," + ef.value(rhc.getOptimal())
+	                       + "," + (System.currentTimeMillis() - starttime));
+        	}
         }
-        System.out.println("RHC," + iterations + "," + (System.currentTimeMillis() - starttime));
         
         starttime = System.currentTimeMillis();
         SimulatedAnnealing sa = new SimulatedAnnealing(1E11, .95, hcp);
-        iterations = 0;
-        while(ef.value(rhc.getOptimal()) != optimum)
+        for(int i=0; i<MAX_IT; i++)
         {
         	sa.train();
-        	iterations++;
+        	if(i%PRINT_INTERVAL==0)
+        	{
+	            System.out.println("SA," + i + "," + N + "," + T
+	 		           + "," + ef.value(sa.getOptimal())
+                       + "," + (System.currentTimeMillis() - starttime));
+        	}
         }
-        System.out.println("RHC," + iterations + "," + (System.currentTimeMillis() - starttime));
         
-        StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(200, 100, 10, gap);
-        //fit = new FixedIterationTrainer(ga, 1000);
-        while(ef.value(rhc.getOptimal()) != optimum)
+        starttime = System.currentTimeMillis();
+        StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(GA_POP, 100, 10, gap);
+        for(int i=0; i<MAX_IT/GA_POP; i++)
         {
-        	sa.train();
-        	iterations++;
+        	ga.train();
+        	if(true)
+        	{
+	            System.out.println("GA," + i*GA_POP + "," + N + "," + T
+	 		           + "," + ef.value(ga.getOptimal())
+	                    + "," + (System.currentTimeMillis() - starttime));
+        	}
         }
-        System.out.println("GA: " + ef.value(ga.getOptimal()));
         
-        MIMIC mimic = new MIMIC(200, 20, pop);
-        //fit = new FixedIterationTrainer(mimic, 1000);
-        while(ef.value(rhc.getOptimal()) != optimum)
+        starttime = System.currentTimeMillis();
+        MIMIC mimic = new MIMIC(MIMIC_SAMPLES, 20, pop);
+        for(int i=0; i<MAX_IT/MIMIC_SAMPLES; i++)
         {
-        	sa.train();
-        	iterations++;
+        	mimic.train();
+        	if(true)
+        	{
+	            System.out.println("MIMIC," + i*MIMIC_SAMPLES + "," + N + "," + T
+	 		           + "," + ef.value(mimic.getOptimal())
+	                    + "," + (System.currentTimeMillis() - starttime));
+        	}
         }
-        System.out.println("MIMIC: " + ef.value(mimic.getOptimal()));
     }
 }

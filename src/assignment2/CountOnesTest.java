@@ -34,13 +34,14 @@ import shared.FixedIterationTrainer;
 public class CountOnesTest {
     /** The n value */
     //private static final int N = 80;
-    private static final int MAX_IT = 1000;
+    private static final int MAX_IT = 1500;
     private static final int MIMIC_SAMPLES = 50;
     private static final int GA_POP = 20;
-    private static final int PRINT_INTERVAL = 10;
+    private static final int PRINT_INTERVAL = 1;
     
     public static void main(String[] args) {
     	int N = args.length > 0 ? Integer.parseInt(args[0]): 80;
+    	int T = args.length > 1 ? Integer.parseInt(args[0]): 80;
         int[] ranges = new int[N];
         Arrays.fill(ranges, 2);
         EvaluationFunction ef = new CountOnesEvaluationFunction();
@@ -79,6 +80,7 @@ public class CountOnesTest {
         	}
         }
         
+        starttime = System.currentTimeMillis();
         StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(GA_POP, 20, 0, gap);
         for(int i=0; i<MAX_IT/GA_POP; i++)
         {
@@ -91,10 +93,11 @@ public class CountOnesTest {
         	}
         }
         
+        starttime = System.currentTimeMillis();
         MIMIC mimic = new MIMIC(MIMIC_SAMPLES, 10, pop);
         for(int i=0; i<MAX_IT/MIMIC_SAMPLES; i++)
         {
-        	ga.train();
+        	mimic.train();
         	if(true)
         	{
 	            System.out.println("MIMIC," + i*MIMIC_SAMPLES + "," + N

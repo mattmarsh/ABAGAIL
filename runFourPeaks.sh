@@ -28,7 +28,7 @@ function set_header {
 	elif [[ "$1" == FlipFlopTest ]]; then
 		echo "algorithm,evaluations,N,optimal value,time" > ${OUTPUT}/${1}.csv		
 	elif [[ "$1" == FourPeaksTest ]]; then
-		echo "algorithm,evaluations,N,optimal value,time" > ${OUTPUT}/${1}.csv			
+		echo "algorithm,evaluations,N,T,optimal value,time" > ${OUTPUT}/${1}.csv			
 	else
 		echo "algorithm,iterations,training error,testing error,training time,testing time" > ${OUTPUT}/${1}.csv
 	fi
